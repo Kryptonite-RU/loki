@@ -369,7 +369,14 @@ func (t *TCPTransport) FinalAdvertiseAddr(ip string, port int) (net.IP, int, err
 				return nil, 0, fmt.Errorf("failed to get interface addresses: %v", err)
 			}
 			if ip == "" {
-				return nil, 0, fmt.Errorf("no private IP address found, and explicit IP not provided")
+				ip, err = sockaddr.GetPublicIP()
+				if err != nil {
+					return nil, 0, fmt.Errorf("failed to get interface addresses: %v", err)
+				}
+
+				if ip == "" {
+					return nil, 0, fmt.Errorf("no private or public IP address found, and explicit IP not provided")
+				}
 			}
 
 			advertiseAddr = net.ParseIP(ip)
